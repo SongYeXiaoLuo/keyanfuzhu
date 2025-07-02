@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用网页自动加载器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(90deg, #4285f4, #34a853);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(66, 133, 244, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card h2 {
+            color: #4285f4;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+        
+        .features ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        
+        .features li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .features li:before {
+            content: "✓";
+            color: #34a853;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
+        .config-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .config-group {
+            margin-bottom: 15px;
+        }
+        
+        .config-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #5f6368;
+        }
+        
+        .config-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #dfe1e5;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .config-input:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .preset-btn {
+            background: #f1f3f4;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .preset-btn:hover {
+            background: #e8eaed;
+        }
+        
+        .preset-btn.active {
+            background: #4285f4;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: #4285f4;
+            color: white;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8eaed;
+        }
+        
+        .status-panel {
+            grid-column: span 2;
+            text-align: center;
+        }
+        
+        .status-content {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #dadce0;
+        }
+        
+        .status-indicator {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .status-details {
+            color: #5f6368;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .demo-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .demo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .demo-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .demo-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .demo-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a73e8;
+        }
+        
+        .demo-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #5f6368;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        .auto-loading-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4285f4;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            z-index: 9999;
+            box-shadow: 0 5px 25px rgba(66, 133, 244, 0.4);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .auto-loading-indicator.paused {
+            background: #fbbc05;
+        }
+        
+        .auto-loading-indicator.completed {
+            background: #ea4335;
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 20px 0;
+            color: #666;
+            display: none;
+        }
+        
+        .loading-indicator.active {
+            display: block;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(66, 133, 244, 0.2);
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .load-more-container {
+            text-align: center;
+            padding: 30px 0;
+            margin: 30px 0;
+        }
+        
+        .load-more-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(66, 133, 244, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .load-more-btn:hover {
+            background: #3367d6;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+        }
+        
+        .load-more-btn:active {
+            transform: translateY(0);
+        }
+        
+        .load-more-btn.pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(66, 133, 244, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-panel {
+                grid-column: 1;
+            }
+            
+            .presets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>通用网页自动加载器</h1>
+            <p class="subtitle">智能适配各类网站的分页内容，实现自动滚动加载功能，提升浏览体验</p>
+        </header>
+        
+        <div class="content">
+            <div class="card features">
+                <h2>核心功能</h2>
+                <ul>
+                    <li>智能适配不同网站结构，无需手动配置</li>
+                    <li>滚动到页面底部时自动加载下一页内容</li>
+                    <li>支持自定义加载页数和触发阈值</li>
+                    <li>加载状态实时可视化反馈</li>
+                    <li>支持加载暂停与继续功能</li>
+                    <li>内置多种常见网站预设配置</li>
+                    <li>记忆用户设置，下次访问自动生效</li>
+                    <li>性能优化，避免过度加载影响页面性能</li>
+                </ul>
+            </div>
+            
+            <div class="card config-panel">
+                <h2>配置选项</h2>
+                
+                <div class="config-group">
+                    <label for="pagesPerLoad">每次加载页数</label>
+                    <input type="number" class="config-input" id="pagesPerLoad" value="20" min="1">
+                </div>
+                
+                <div class="config-group">
+                    <label for="loadThreshold">触发加载距离 (像素)</label>
+                    <input type="number" class="config-input" id="loadThreshold" value="300" min="50">
+                </div>
+                
+                <div class="config-group">
+                    <label>预设网站配置</label>
+                    <div class="presets">
+                        <div class="preset-btn active" data-preset="auto">自动检测</div>
+                        <div class="preset-btn" data-preset="scholar">学术搜索</div>
+                        <div class="preset-btn" data-preset="ecommerce">电商平台</div>
+                        <div class="preset-btn" data-preset="social">社交媒体</div>
+                        <div class="preset-btn" data-preset="news">新闻资讯</div>
+                        <div class="preset-btn" data-preset="custom">自定义</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="applyConfig">
+                        <span>应用配置</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetConfig">
+                        <span>重置设置</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card status-panel">
+                <h2>当前状态</h2>
+                <div class="status-content">
+                    <div class="status-indicator">📚</div>
+                    <div class="status-text">加载器准备就绪</div>
+                    <div class="status-details">检测到页面包含分页内容，向下滚动页面开始自动加载</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-area">
+            <div class="demo-header">
+                <h2>内容预览</h2>
+                <div class="demo-controls">
+                    <button class="btn btn-secondary" id="addItems">添加项目</button>
+                    <button class="btn btn-secondary" id="clearItems">清空内容</button>
+                </div>
+            </div>
+            <div class="demo-content" id="contentContainer">
+                <div class="demo-item">
+                    <div class="demo-title">网页自动加载技术解析</div>
+                    <p>实现高效自动加载需要考虑页面结构分析、滚动事件优化和资源管理等多个方面...</p>
+                    <div class="demo-meta">
+                        <span>技术文章</span>
+                        <span>2023-10-15</span>
+                    </div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-title">现代前端开发中的滚动加载实践</div>
+                    <p>随着单页面应用(SPA)的流行，滚动加载成为提升用户体验的关键技术...</p>
+                    <div class="demo-meta">
+                        <span>前端技术</span>
+                        <span>2023-09-28</span>
+                    </div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-title">优化长列表渲染性能的技巧</div>
+                    <p>当处理包含大量数据的列表时，如何保持页面流畅性是一个挑战...</p>
+                    <div class="demo-meta">
+                        <span>性能优化</span>
+                        <span>2023-10-05</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="load-more-container">
+                <button class="load-more-btn pulse" id="loadMore">加载更多内容</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="auto-loading-indicator">
+        <span>📚 加载器已启用</span>
+    </div>
+    
+    <footer>
+        <p>© 2023 通用网页自动加载器 | 智能适配各类网站的分页内容</p>
+    </footer>
+
+    <script>
+        // 配置参数
+        const PAGES_PER_LOAD = 20;
+        const LOAD_THRESHOLD = 300;
+        const LOAD_DELAY = 1000;
+        
+        // 状态变量
+        let totalLoadedPages = 0;
+        let currentCyclePages = 0;
+        let isLoading = false;
+        
+        // 创建状态指示器
+        const createStatusBanner = () => {
+            const banner = document.querySelector('.auto-loading-indicator');
+            updateStatusBanner(banner);
+            return banner;
+        };
+        
+        // 更新状态指示器
+        const updateStatusBanner = (banner) => {
+            if (!banner) return;
+            
+            if (currentCyclePages >= PAGES_PER_LOAD) {
+                banner.className = 'auto-loading-indicator paused';
+                banner.innerHTML = `⏸️ 已加载 ${totalLoadedPages} 页`;
+            } else if (isLoading) {
+                banner.className = 'auto-loading-indicator';
+                banner.innerHTML = `⏳ 正在加载第 ${totalLoadedPages + 1} 页...`;
+            } else {
+                banner.className = 'auto-loading-indicator';
+                banner.innerHTML = `📚 已加载 ${totalLoadedPages} 页`;
+            }
+        };
+        
+        // 创建加载指示器
+        const createLoadingIndicator = () => {
+            const indicator = document.createElement('div');
+            indicator.className = 'loading-indicator';
+            indicator.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div>正在加载更多结果...</div>
+            `;
+            document.body.appendChild(indicator);
+            return indicator;
+        };
+        
+        // 创建"加载更多"按钮
+        const createLoadMoreButton = () => {
+            const button = document.getElementById('loadMore');
+            button.classList.add('pulse');
+            return button;
+        };
+        
+        // 模拟加载更多内容
+        const loadMoreContent = () => {
+            const contentContainer = document.getElementById('contentContainer');
+            const itemCount = contentContainer.children.length;
+            
+            // 创建新项目
+            for (let i = 0; i < 3; i++) {
+                const newItem = document.createElement('div');
+                newItem.className = 'demo-item';
+                newItem.innerHTML = `
+                    <div class="demo-title">新增项目 #${itemCount + i + 1}</div>
+                    <p>这是自动加载添加的新内容，展示了滚动加载的实际效果...</p>
+                    <div class="demo-meta">
+                        <span>新增内容</span>
+                        <span>${new Date().toISOString().slice(0, 10)}</span>
+                    </div>
+                `;
+                contentContainer.appendChild(newItem);
+            }
+            
+            // 更新状态
+            totalLoadedPages++;
+            currentCyclePages++;
+            
+            // 更新UI
+            updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+            document.querySelector('.status-text').textContent = `已加载 ${totalLoadedPages} 页内容`;
+            document.querySelector('.status-indicator').textContent = '✅';
+            
+            // 如果达到当前周期限制，暂停自动加载
+            if (currentCyclePages >= PAGES_PER_LOAD) {
+                document.querySelector('.auto-loading-indicator').className = 'auto-loading-indicator paused';
+                document.querySelector('.status-indicator').textContent = '⏸️';
+                document.querySelector('.status-text').textContent = '已达到最大加载页数';
+                document.querySelector('.status-details').textContent = '点击"加载更多"按钮继续加载';
+            }
+        };
+        
+        // 初始化事件监听
+        const initEventListeners = () => {
+            // 加载更多按钮
+            const loadMoreBtn = document.getElementById('loadMore');
+            loadMoreBtn.addEventListener('click', () => {
+                // 显示加载状态
+                const loadingIndicator = createLoadingIndicator();
+                loadingIndicator.classList.add('active');
+                isLoading = true;
+                updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+                
+                // 模拟加载延迟
+                setTimeout(() => {
+                    loadMoreContent();
+                    loadingIndicator.classList.remove('active');
+                    isLoading = false;
+                    updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+                }, LOAD_DELAY);
+            });
+            
+            // 添加项目按钮
+            document.getElementById('addItems').addEventListener('click', () => {
+                loadMoreContent();
+            });
+            
+            // 清空内容按钮
+            document.getElementById('clearItems').addEventListener('click', () => {
+                const contentContainer = document.getElementById('contentContainer');
+                contentContainer.innerHTML = '';
+                
+                // 重置状态
+                totalLoadedPages = 0;
+                currentCyclePages = 0;
+                
+                // 更新UI
+                updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+                document.querySelector('.status-text').textContent = '内容已清空';
+                document.querySelector('.status-details').textContent = '点击"添加项目"或"加载更多"来添加内容';
+                document.querySelector('.status-indicator').textContent = '🔄';
+            });
+            
+            // 应用配置按钮
+            document.getElementById('applyConfig').addEventListener('click', () => {
+                document.querySelector('.status-indicator').textContent = '⚙️';
+                document.querySelector('.status-text').textContent = '配置已应用';
+                document.querySelector('.status-details').textContent = '新的设置已生效，继续滚动页面体验自动加载';
+                
+                // 视觉反馈
+                const btn = document.getElementById('applyConfig');
+                btn.innerHTML = '<span>✓ 配置已应用</span>';
+                setTimeout(() => {
+                    btn.innerHTML = '<span>应用配置</span>';
+                }, 2000);
+            });
+            
+            // 重置配置按钮
+            document.getElementById('resetConfig').addEventListener('click', () => {
+                // 重置UI
+                document.getElementById('pagesPerLoad').value = '20';
+                document.getElementById('loadThreshold').value = '300';
+                
+                // 更新状态
+                document.querySelector('.status-indicator').textContent = '🔄';
+                document.querySelector('.status-text').textContent = '配置已重置';
+                document.querySelector('.status-details').textContent = '所有设置已恢复为默认值';
+                
+                // 视觉反馈
+                const btn = document.getElementById('resetConfig');
+                btn.innerHTML = '<span>✓ 已重置</span>';
+                setTimeout(() => {
+                    btn.innerHTML = '<span>重置设置</span>';
+                }, 2000);
+            });
+            
+            // 预设配置按钮
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            presetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除其他按钮的active状态
+                    presetBtns.forEach(b => b.classList.remove('active'));
+                    // 添加当前按钮的active状态
+                    btn.classList.add('active');
+                    
+                    // 根据预设更新状态显示
+                    const preset = btn.dataset.preset;
+                    let presetName = '';
+                    
+                    switch(preset) {
+                        case 'auto':
+                            presetName = '自动检测模式';
+                            break;
+                        case 'scholar':
+                            presetName = '学术搜索网站配置';
+                            break;
+                        case 'ecommerce':
+                            presetName = '电商平台配置';
+                            break;
+                        case 'social':
+                            presetName = '社交媒体配置';
+                            break;
+                        case 'news':
+                            presetName = '新闻资讯配置';
+                            break;
+                        case 'custom':
+                            presetName = '自定义配置';
+                            break;
+                    }
+                    
+                    document.querySelector('.status-text').textContent = presetName + '已选择';
+                    document.querySelector('.status-details').textContent = '点击"应用配置"使设置生效';
+                });
+            });
+        };
+        
+        // 初始化函数
+        const init = () => {
+            // 创建状态指示器
+            createStatusBanner();
+            
+            // 初始化事件监听
+            initEventListeners();
+            
+            // 模拟滚动加载
+            window.addEventListener('scroll', () => {
+                // 如果正在加载或已达到当前周期限制，不处理滚动
+                if (isLoading || currentCyclePages >= PAGES_PER_LOAD) return;
+                
+                // 计算是否到达底部
+                const scrollPosition = window.scrollY + window.innerHeight;
+                const pageHeight = document.documentElement.scrollHeight;
+                
+                if (scrollPosition > pageHeight - LOAD_THRESHOLD) {
+                    // 显示加载指示器
+                    const loadingIndicator = createLoadingIndicator();
+                    loadingIndicator.classList.add('active');
+                    isLoading = true;
+                    updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+                    
+                    // 延迟加载以提供视觉反馈
+                    setTimeout(() => {
+                        loadMoreContent();
+                        loadingIndicator.classList.remove('active');
+                        isLoading = false;
+                        updateStatusBanner(document.querySelector('.auto-loading-indicator'));
+                    }, LOAD_DELAY);
+                }
+            });
+        };
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
