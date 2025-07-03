@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         学术科研网页辅助工具
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @description  一款
 // @author       哔哩哔哩：凇月落
 // @match        https://fanyi.baidu.com/*
 // @match        https://dict.cnki.net/*
+// @match        https://kns.cnki.net/*
 // @match        https://www.kdocs.cn/*
 // @match        https://sc.panda985.com/*
 // @grant        GM_xmlhttpRequest
@@ -909,5 +910,62 @@ if(window.location.href.includes('fanyi.baidu.com')){
     display: none !important;
   }
 `);}
+
+
+ //**************************ﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌ*
+//知网检索
+//**********ﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌﻌ***************
+if(window.location.href.includes('kns.cnki.net')){
+
+    // 立即尝试点击（不等待任何加载）
+    const tryClick = () => {
+        const zhBtn = document.getElementById('ZH');
+        if (zhBtn) {
+            zhBtn.click();
+            if (document.querySelector('#perPageDiv .sort-default').textContent!=='50'){
+
+
+
+// 显示下拉菜单但不让用户看到
+const sortList = document.querySelector('#perPageDiv .sort-list');
+sortList.style.display = 'block';
+sortList.style.opacity = '0';
+sortList.style.position = 'absolute';
+sortList.style.zIndex = '-1000';
+
+// 触发点击
+document.querySelector('li[data-val="50"]').click();
+document.querySelector('li[data-val="50"]').click();
+
+// 立即恢复菜单状态（不影响后续操作）
+setTimeout(() => {
+  sortList.style = '';
+}, 100);
+                        }
+            return true;
+        }
+        return false;
+    };
+
+    // 持续尝试直到成功
+    const interval = setInterval(() => {
+        if (tryClick()) {
+            clearInterval(interval);
+        }
+    }, 100);
+
+    // 10秒后停止尝试（防止无限循环）
+    setTimeout(() => {
+        clearInterval(interval);
+    }, 7000);
+
+
+
+}//if的括号
+
+
+
+
+
 
 })();
