@@ -2,6 +2,14 @@
 
 ![Tampermonkey Script](https://img.shields.io/badge/Tampermonkey-Script-brightgreen) ![Version](https://img.shields.io/badge/Version-1.4-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
+# Academic Research Web Assistant [中文学术助手]
+
+🔍 **Optimized for search engines with keywords:**
+- Tampermonkey script for academic research
+- CNKI/百度翻译/金山文档增强工具
+- 学术科研浏览器插件
+- 文献阅读辅助工具
+
 ## 中文介绍
 
 学术科研网页辅助工具是一款专为科研人员、学者和学生设计的Tampermonkey用户脚本，旨在优化您在常用学术网站上的研究体验。本工具针对多个核心学术平台提供增强功能，帮助您更高效地获取知识、管理文献和进行学术写作。
